@@ -4,22 +4,36 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Product;
+use App\Notifications\PublishPost;
+use App\Models\PublishedPost as Post;
+use DB;
+
 class PostController extends Controller
 {
-    //
-    public function index(Request $request){
-        $content = '<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">₹&nbsp;3,599.00</span>';
+    public function autoPublish(Request $request){
+        $offerProducts = DB::select('select fn_get_offer_products() as offer_products');
+        $arrProducts = explode(',', $offerProducts[0]->offer_products);
+        
+        if(count($arrProducts)){
+            $products=Product::find($arrProducts);
 
-        if(preg_match('/<span id=\"priceblock_ourprice\" class="a-size-medium a-color-price priceBlockBuyingPriceString"\">(.*?)<\/span>/i',
-            $content, $matches)) {
+            foreach($products as $product){
+                $post = new Post();
+                $post->product_id = $product->id;
+                $post->pecentage_drop=$product->pecentage_drop;
+                $post->amazon_price=$product->amazon_price;
+                $post->save();
 
-            $price = trim($matches[1]);
-        } else {
-            echo "Price not found.";
-            $price = 0;
+                $product->notify(new PublishPost);
+            }
         }
 
-        dd($price);
-        
     }
+
+    public function index(Request $request){
+       dd($request);        
+    }
+
+    // public function publish()
 }
