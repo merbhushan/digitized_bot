@@ -29,6 +29,7 @@ class PostController extends Controller
             }
         }
 
+        return ['result' => true];
     }
 
     public function index(Request $request){
