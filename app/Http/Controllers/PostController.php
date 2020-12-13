@@ -36,7 +36,7 @@ class PostController extends Controller
 
     public function publishOnPage($productId, Request $request){
         $product=Product::find($productId);
-        if($product){
+        if($product && ($product->discount * $product->amazon_ranting)  > 50 && $product->percentage_drop > 5){
             $lastPostedPrice = Post::selectRaw('min(amazon_price) as min_price')
                 ->where('product_id', $productId)
                 ->whereRaw('created_at > CURDATE() - INTERVAL 15 DAY')
