@@ -52,7 +52,7 @@ class PostController extends Controller
                 $product->notify(new PublishPost);
             }
         }
-        return 'posted'
+        return 'posted';
     }
 
     public function index(Request $request){
